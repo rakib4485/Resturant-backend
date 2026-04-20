@@ -2,8 +2,8 @@ import MenuItem from "../models/MenuItem.js";
 // 🔥 Create Menu Item
 export const createMenuItem = async (req, res) => {
   try {
-    const { name, price, description, mealTimes } = req.body;
-    const menuItem = await MenuItem.create({ name, price, description, mealTimes });
+    const { name, price, description, mealTimes, image } = req.body;
+    const menuItem = await MenuItem.create({ name, price, description, mealTimes, image });
     res.status(201).json(menuItem);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -13,7 +13,7 @@ export const createMenuItem = async (req, res) => {
 // 📊 Get All Menu Items
 export const getAllMenuItems = async (req, res) => {
   try {
-    console.log("Fetching all menu items...");
+    // console.log("Fetching all menu items...");
     const menuItems = await MenuItem.find({});
     res.status(200).json(menuItems);
   } catch (error) {

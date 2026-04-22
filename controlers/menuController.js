@@ -44,10 +44,10 @@ export const getMenuItemById = async (req, res) => {
 export const updateMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description, mealTimes } = req.body;
+    const { name, price, description, mealTimes, image, mealtimes } = req.body;
     const menuItem = await MenuItem.findByIdAndUpdate(
       id,
-      { name, price, description, mealTimes },
+      { name, price, description, mealTimes, image, mealtimes },
       { new: true }
     );
     res.status(200).json(menuItem);

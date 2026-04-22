@@ -5,24 +5,40 @@ export const createOrder = async (req, res) => {
   try {
     const { items } = req.body;
 
-    // Calculate total
-    const totalAmount = items.reduce(
-      (acc, item) => acc + item.total,
+    const total = items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
       0
     );
 
-    // Auto token number (last + 1)
-    const lastOrder = await Order.findOne().sort({ createdAt: -1 });
+    // 🟡 TODAY START
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
 
-    const tokenNumber = lastOrder ? lastOrder.tokenNumber + 1 : 1;
+    // 🟡 TODAY END
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    // 🔥 find today's last order only
+    const lastOrderToday = await Order.findOne({
+      createdAt: { $gte: start, $lte: end },
+    }).sort({ createdAt: -1 });
+
+    // 🔥 token reset daily
+    const token = lastOrderToday ? lastOrderToday.token + 1 : 1;
 
     const order = await Order.create({
-      tokenNumber,
+      token,
       items,
-      totalAmount,
+      total,
     });
 
-    res.status(201).json(order);
+    res.status(201).json({
+      message: "Order created successfully",
+      orderId: order._id,
+      token: order.token,
+      order,
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -31,15 +47,38 @@ export const createOrder = async (req, res) => {
 // 📊 Get Today's Orders
 export const getTodayOrders = async (req, res) => {
   try {
-    // const start = new Date();
-    // start.setHours(0, 0, 0, 0);
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
 
-    // const end = new Date();
-    // end.setHours(23, 59, 59, 999);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
 
-    const orders = await Order.find({});
+    const orders = await Order.find({
+      createdAt: {
+        $gte: start,
+        $lte: end,
+      },
+    }).sort({ createdAt: -1 });
 
     res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getTodayLastOrder = async (req, res) => {
+  try {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const lastOrder = await Order.findOne({
+      createdAt: { $gte: start, $lte: end },
+    }).sort({ createdAt: -1 });
+
+    res.json(lastOrder || null);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

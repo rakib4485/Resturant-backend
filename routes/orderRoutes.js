@@ -2,6 +2,7 @@ import express from "express";
 import {
   createOrder,
   getTodayOrders,
+  getTodayLastOrder,
   getDashboard
 } from "../controlers/orderController.js";
 
@@ -14,6 +15,7 @@ const router = express.Router();
 router.post("/create", createOrder);
 router.get("/today", getTodayOrders);
 router.get("/dashboard", getDashboard);
+router.get("/today-last", getTodayLastOrder);
 
 // Meal Time Routes
 router.post("/meal-times-create", createMealTime);

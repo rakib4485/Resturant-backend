@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 // import rout from "./routes/orderRoutes.js";
 import routes from "./routes/orderRoutes.js"
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/orders", routes);
 app.use("/api/time", routes);
 app.use("/api/menu", routes);
+app.use("/api/admin", adminRoutes);
 
 
 mongoose.connect(process.env.MONGO_URI)

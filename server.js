@@ -3,9 +3,10 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 
-// import rout from "./routes/orderRoutes.js";
 import routes from "./routes/orderRoutes.js"
 import adminRoutes from "./routes/adminRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
+import authRoutes from "./routes/AuthRoutes.js";
 
 dotenv.config();
 
@@ -18,6 +19,9 @@ app.use("/api/orders", routes);
 app.use("/api/time", routes);
 app.use("/api/menu", routes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/auth", authRoutes);
+
 
 
 mongoose.connect(process.env.MONGO_URI)

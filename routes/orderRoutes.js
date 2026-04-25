@@ -8,25 +8,27 @@ import {
 
 import { getAllMealTimes, createMealTime } from "../controlers/mealTimesController.js";
 import { createMenuItem, getAllMenuItems, getMenuItemById, updateMenuItem, deleteMenuItem } from "../controlers/menuController.js";
+import verifyToken from "../middleware/verifyToken.js";
+import { adminOnly } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
 // Order Routes
-router.post("/create", createOrder);
-router.get("/today", getTodayOrders);
-router.get("/dashboard", getDashboard);
-router.get("/today-last", getTodayLastOrder);
+router.post("/create", verifyToken, createOrder);
+router.get("/today", verifyToken, getTodayOrders);
+router.get("/dashboard", verifyToken, getDashboard);
+router.get("/today-last", verifyToken, getTodayLastOrder);
 
 // Meal Time Routes
-router.post("/meal-times-create", createMealTime);
-router.get("/meal-times", getAllMealTimes);
+router.post("/meal-times-create", verifyToken, createMealTime);
+router.get("/meal-times", verifyToken, getAllMealTimes);
 
 // Menu Item Routes
-router.get("/menu-items", getAllMenuItems);
-router.post("/menu-items-create", createMenuItem);
-router.get("/menu-items/:id", getMenuItemById);
-router.put("/menu-items/:id", updateMenuItem);
-router.delete("/menu-items/:id", deleteMenuItem);
+router.get("/menu-items", verifyToken, getAllMenuItems);
+router.post("/menu-items-create", verifyToken, createMenuItem);
+router.get("/menu-items/:id", verifyToken, getMenuItemById);
+router.put("/menu-items/:id", verifyToken, updateMenuItem);
+router.delete("/menu-items/:id", verifyToken, deleteMenuItem);
 
 
 export default router;

@@ -1,49 +1,60 @@
 import MenuItem from "../models/MenuItem.js";
 import Order from "../models/Order.js";
+// import MenuItem from "../models/MenuItem.js
 
-export const getAdminDashboard = async (req, res) => {
+export const getDashboard = async (req, res) => {
   try {
-    // ===============================
-    // 📦 TOTAL PRODUCTS
-    // ===============================
+    const { date } = req.query;
+
+    // ✅ If no date → use today
+    const selectedDate = date ? new Date(date) : new Date();
+
+    // ✅ Start & End of Day
+    const start = new Date(selectedDate.setHours(0, 0, 0, 0));
+    const end = new Date(selectedDate.setHours(23, 59, 59, 999));
+
+    // =============================
+    // 📊 TOTAL PRODUCTS
+    // =============================
     const totalProducts = await MenuItem.countDocuments();
 
-    // ===============================
-    // 🧾 TOTAL ORDERS
-    // ===============================
-    const totalOrders = await Order.countDocuments();
-
-    // ===============================
-    // 💰 TOTAL REVENUE
-    // ===============================
-    const revenueData = await Order.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$total" },
-        },
-      },
-    ]);
-
-    const totalRevenue = revenueData[0]?.totalRevenue || 0;
-
-    // ===============================
-    // ⏳ PENDING ORDERS
-    // ===============================
-    const pendingOrders = await Order.countDocuments({
-      status: "pending",
+    // =============================
+    // 📊 TODAY ORDERS
+    // =============================
+    const orders = await Order.find({
+      createdAt: { $gte: start, $lte: end },
     });
 
-    // ===============================
-    // 📋 RECENT ORDERS (LAST 5)
-    // ===============================
-    const recentOrders = await Order.find()
-      .sort({ createdAt: -1 })
-      .limit(5);
+    // =============================
+    // 📊 TOTAL ORDERS
+    // =============================
+    const totalOrders = orders.length;
 
-    // ===============================
-    // RESPONSE
-    // ===============================
+    // =============================
+    // 💰 TOTAL REVENUE
+    // =============================
+    const totalRevenue = orders.reduce(
+      (acc, order) => acc + (order.total || 0),
+      0
+    );
+
+    // =============================
+    // ⏳ PENDING ORDERS
+    // =============================
+    const pendingOrders = orders.filter(
+      (order) => order.status === "pending"
+    ).length;
+
+    // =============================
+    // 🧾 RECENT ORDERS
+    // =============================
+    const recentOrders = orders
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 5);
+
+    // =============================
+    // ✅ RESPONSE
+    // =============================
     res.json({
       totalProducts,
       totalOrders,
@@ -53,6 +64,7 @@ export const getAdminDashboard = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Dashboard Error:", error); // 🔥 IMPORTANT
     res.status(500).json({ message: error.message });
   }
 };
